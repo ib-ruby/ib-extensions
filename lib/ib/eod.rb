@@ -152,22 +152,27 @@ require 'csv'
 				end
 		  end
 
-			duration =  if duration.present?
-                 duration.is_a?(String) ? duration.gsub(" ", "") : duration.to_s + "D"
-									elsif start.present?
+			duration = if start.present?
 										BuisinesDays.business_days_between(start, to).to_s + "D"
-									else
-										"1D"
-                  end.insert(-2, " ")
+                    elsif duration.present?
+                      if duration.is_a?(Integer) || !["D","M","W","Y"].include?( duration[-1] )
+                        duration.to_i.to_s + "D"
+                      else
+                        duration.gsub(" ","")
+                      end
+                    else
+                      "1D"
+                    end.insert(-2, " ")
 
       barsize = case duration[-1]
-                when "D"
-                  :day1
                 when "W"
                   :week1
                 when "M"
                   :month1
+                else
+                  :day1
                 end
+
 			tws.send_message IB::Messages::Outgoing::RequestHistoricalData.new(
 				:request_id => con_id,
 				:contract =>  self,
