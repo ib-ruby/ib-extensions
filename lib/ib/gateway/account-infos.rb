@@ -125,7 +125,7 @@ Raises an IB::Error if less then 100 items are received.
 #						account.contracts.find{ |x| x.con_id == msg.contract.con_id }
 #								.portfolio_values
 #								.update_or_create( msg.portfolio_value ) { :account } 
-          IB::Connectiom.logger.debug { "#{ account.account } :: #{ msg.contract.to_human }" }
+          IB::Connection.logger.debug { "#{ account.account } :: #{ msg.contract.to_human }" }
         end # case
 			end # account_data 
 		end # subscribe
