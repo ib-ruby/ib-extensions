@@ -204,6 +204,60 @@ require 'csv'
         self.bars << IB::Bar.new( **row.to_h )
       end
     end
+
+
+    
+    def get_bars(end_date_time, duration, bar_size, what_to_show) 
+
+      tws = IB::Connection.current
+      recieved =  Queue.new
+      r = nil
+      # the hole response is transmitted at once!
+      a = tws.subscribe(IB::Messages::Incoming::HistoricalData) do |msg|
+        if msg.request_id == con_id
+          # msg.results.each { |entry| puts "  #{entry}" }
+          self.bars = msg.results
+        end
+        recieved.push Time.now
+      end
+      b = tws.subscribe( IB::Messages::Incoming::Alert) do  |msg|
+        if [321,162,200].include? msg.code
+          tws.logger.info msg.message
+          # TWS Error 200: No security definition has been found for the request
+          # TWS Error 354: Requested market data is not subscribed.
+          # TWS Error 162  # Historical Market Data Service error
+          recieved.close
+        end
+      end
+
+      # duration =  if duration.present?
+      # duration.is_a?(String) ? duration : duration.to_s + " D"
+      # elsif start.present?
+      # BuisinesDays.business_days_between(start, to).to_s + " D"
+      # else
+      # "1 D"
+      # end
+
+      tws.send_message IB::Messages::Outgoing::RequestHistoricalData.new(
+        :request_id => con_id,
+        :contract =>  self,
+        :end_date_time => end_date_time, #to.to_time.to_ib, #  Time.now.to_ib,
+        :duration => duration, # see ib/messages/outgoing/bar_request.rb => max duration for 5sec bar lookback is 10 000 - i.e. will yield 2000 bars
+        :bar_size =>  bar_size, #  IB::BAR_SIZES.key(:hour)?
+        :what_to_show => what_to_show,
+        :use_rth => 0,
+        :format_date => 2,
+        :keep_up_todate => 0)
+
+      recieved.pop # blocks until a message is ready on the queue or the queue is closed
+
+      tws.unsubscribe a
+      tws.unsubscribe b
+
+      block_given? ?  bars.map{|y| yield y} : bars  # return bars or result of block
+
+    end # def 
+
 	end  # class
 end # module
 
