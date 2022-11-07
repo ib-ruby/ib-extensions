@@ -5,7 +5,7 @@ module IB
 	class Alert
 		class << self
 			def alert_2101 msg
-				logger.error {msg.message}
+        IB::Connection.logger.error {msg.message}
 				@status_2101 = msg.dup	
 			end
 
@@ -37,7 +37,7 @@ Raises an IB::Error if less then 100 items are received.
     download_end = nil  # declare variable
 
 		accounts = clients if accounts.empty?
-		logger.warn{ "No active account present. AccountData are NOT requested" } if accounts.empty?
+    IB::Connection.logger.warn{ "No active account present. AccountData are NOT requested" } if accounts.empty?
 		# Account-infos have to be requested sequentially. 
 		# subsequent (parallel) calls kill the former on the tws-server-side
 		# In addition, there is no need to cancel the subscription of an request, as a new
@@ -47,7 +47,7 @@ Raises an IB::Error if less then 100 items are received.
 			error( "No Account detected " )  unless account.is_a? IB::Account
 			# don't repeat the query until 170 sec. have passed since the previous update
 			if account.last_updated.nil?  || ( Time.now - account.last_updated ) > 170 # sec   
-				logger.debug{ "#{account.account} :: Requesting AccountData " }
+        IB::Connection.logger.debug{ "#{account.account} :: Requesting AccountData " }
         q =  Queue.new
         download_end = tws.subscribe( :AccountDownloadEnd )  do | msg |
           q.push true if msg.account_name == account.account
@@ -66,7 +66,7 @@ Raises an IB::Error if less then 100 items are received.
 
         account.organize_portfolio_positions  unless IB::Gateway.current.active_watchlists.empty?
 			else
-				logger.info{ "#{account.account} :: Using stored AccountData " }
+        IB::Connection.logger.info{ "#{account.account} :: Using stored AccountData " }
 			end
 		end
     tws.send_message :RequestAccountData, subscribe: false  ## do this only once
@@ -106,14 +106,14 @@ Raises an IB::Error if less then 100 items are received.
 				when IB::Messages::Incoming::AccountValue
 					account.account_values << msg.account_value
 					account.update_attribute :last_updated, Time.now
-					logger.debug { "#{account.account} :: #{msg.account_value.to_human }"}
+          IB::Connection.logger.debug { "#{account.account} :: #{msg.account_value.to_human }"}
 				when IB::Messages::Incoming::AccountDownloadEnd 
 					if account.account_values.size > 10
 							# simply don't cancel the subscription if continuously is specified
 							# the connected flag is set in any case, indicating that valid data are present
   #          tws.send_message :RequestAccountData, subscribe: false, account_code: account.account unless continuously
 						account.update_attribute :connected, true   ## flag: Account is completely initialized
-						logger.info { "#{account.account} => Count of AccountValues: #{account.account_values.size}"  }
+            IB::Connection.logger.info { "#{account.account} => Count of AccountValues: #{account.account_values.size}"  }
 					else # unreasonable account_data received -  request is still active
 						error  "#{account.account} => Count of AccountValues too small: #{account.account_values.size}" , :reader 
 					end
@@ -125,7 +125,7 @@ Raises an IB::Error if less then 100 items are received.
 #						account.contracts.find{ |x| x.con_id == msg.contract.con_id }
 #								.portfolio_values
 #								.update_or_create( msg.portfolio_value ) { :account } 
-						logger.debug { "#{ account.account } :: #{ msg.contract.to_human }" }
+          IB::Connectiom.logger.debug { "#{ account.account } :: #{ msg.contract.to_human }" }
         end # case
 			end # account_data 
 		end # subscribe
