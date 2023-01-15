@@ -64,6 +64,7 @@ module IB
      th = Thread.new do
        # about 11 sec after the request, the TES returns :TickSnapshotEnd if no ticks are transmitted
        # we don't have to implement out ow timeout-criteria
+       begin
        s_id = tws.subscribe(:TickSnapshotEnd){|x| q.push(true) if x.ticker_id == the_id }
        a_id = tws.subscribe(:Alert){|x| q.push(x) if [200, 354, 10167, 10168].include?( x.code )  && x.error_id == the_id } 
        # TWS Error 354: Requested market data is not subscribed.
@@ -76,6 +77,9 @@ module IB
            #  fast exit condition
            q.push(true) if tickdata.size >= 4 
          end if  msg.ticker_id == the_id 
+       end
+       rescue ClosedQueueError  
+         tws.logger.warn { "Still gathering Marketdata but the queue is already closed" }
        end
        # initialize »the_id« that is used to identify the received tick messages
        # by firing the market data request
@@ -104,7 +108,6 @@ module IB
              end
            end
          elsif result.present?
-           q.close
            tz = -> (z){ z.map{|y| y.to_s.split('_')}.flatten.count_duplicates.max_by{|k,v| v}.first.to_sym}
            data =  tickdata.map{|x,y| [tz[x],y]}.to_h
            valid_data = ->(d){ !(d.to_i.zero? || d.to_i == -1) }
@@ -125,6 +128,7 @@ module IB
                        end
 
            self.misc = misc == :delayed ? { :delayed =>  the_price }  : { realtime: the_price }   
+           q.close
          else
            q.close
            error "#{to_human} --> No Marketdata received " 

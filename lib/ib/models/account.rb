@@ -143,11 +143,11 @@ Example
         if [ 110, #  The price does not confirm to the minimum price variation for this contract
             201, # Order rejected, No Trading permissions
             203, # Security is not allowed for trading
-            325, # Disretionary Orders are not supported for ths combination of oerder-type and exchange
+            325, # Disretionary Orders are not supported for ths combination of order-type and exchange
             355, # Order size does not conform to market rule
             361, 362, 363, 364, # invalid trigger or stop-price
             388,  # Order size x is smaller than the minimum required size of yy.
-        ].include? msg.code
+        ].include? msg.code.to_i
           wrong_order =  msg.message
           ib.logger.error msg.message
           q.close   # closing the queue indicates that no order was transmitted

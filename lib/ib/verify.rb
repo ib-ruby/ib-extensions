@@ -64,7 +64,9 @@ module IB
       v= { stock:  { currency: 'USD', exchange: 'SMART', symbol: nil},
            option: { currency: 'USD', exchange: 'SMART', right: 'P', expiry: nil, strike: nil, symbol:  nil},
            future: { currency: 'USD', exchange: nil, expiry: nil,  symbol: nil },
-           forex:  { currency: 'USD', exchange: 'IDEALPRO', symbol: nil }
+           forex:  { currency: 'USD', exchange: 'IDEALPRO', symbol: nil },
+           crypto: { currency: 'USD', exchange: 'SMART', symbol: nil },
+
       }
       sec_type.present? ?	v[sec_type] : { con_id: nil, exchange: 'SMART' } # enables to use only con_id for verifying
 																																				# if the contract allows SMART routing
