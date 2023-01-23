@@ -77,7 +77,7 @@ require 'csv'
     # * the contract is not valid,
     # * no market data subscriptions
     # * other servers-side errors
-    # 
+    #
     # If the duration is longer then the maximum range, the response is
     # cut to the maximum allowed range
     #
@@ -128,7 +128,7 @@ require 'csv'
     #   <Bar: (28.05.21)00:00:00 wap 220.385 OHLC 226.86 228.5 210.19 225.6 trades 2585436 vol 4182406>
     #   <Bar: (30.06.21)00:00:00 wap 228.693 OHLC 226.65 233.7 221.13 230.27 trades 2557100 vol 4269840>
     #   <Bar: (20.07.21)00:00:00 wap 220.491 OHLC 230.77 232.33 209.05 218.97 trades 2105400 vol 3412088>
-    #  
+    #
 		def eod start:nil, to: Date.today, duration: nil , what: :trades
 
 			tws = IB::Connection.current
@@ -149,6 +149,9 @@ require 'csv'
 					# TWS Error 354: Requested market data is not subscribed.
 				  # TWS Error 162  # Historical Market Data Service error
           recieved.close
+        elsif msg.code.to_i == 2174
+          tws.logger.info "Please switch to the \"10-19\"-Branch of the git-repository"
+        end
 				end
 		  end
 
@@ -176,7 +179,8 @@ require 'csv'
 			tws.send_message IB::Messages::Outgoing::RequestHistoricalData.new(
 				:request_id => con_id,
 				:contract =>  self,
-				:end_date_time => to.to_time.to_ib, #  Time.now.to_ib,
+                                                         #  Walkaround to get rid of the warning in V10-19ff
+        :end_date_time => to.to_time.to_ib.gsub(" ","-") #  todo:  check to_time.to_ib to apply the requred date-format directly
 				:duration => duration, #    ?
 				:bar_size => barsize, #  IB::BAR_SIZES.key(:hour)?
 				:what_to_show => what,
@@ -210,9 +214,7 @@ require 'csv'
       end
     end
 
-
-    
-    def get_bars(end_date_time, duration, bar_size, what_to_show) 
+    def get_bars(end_date_time, duration, bar_size, what_to_show)
 
       tws = IB::Connection.current
       recieved =  Queue.new
@@ -263,7 +265,7 @@ require 'csv'
 
       block_given? ?  bars.map{|y| yield y} : bars  # return bars or result of block
 
-    end # def 
+    end # def
 
 	end  # class
 end # module
