@@ -149,6 +149,9 @@ require 'csv'
 					# TWS Error 354: Requested market data is not subscribed.
 				  # TWS Error 162  # Historical Market Data Service error
           recieved.close
+        elsif msg.code.to_i == 2174
+          tws.logger.info "Please switch to the \"10-19\"-Branch of the git-repository"
+        end
 				end
 		  end
 
