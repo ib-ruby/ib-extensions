@@ -152,7 +152,6 @@ require 'csv'
         elsif msg.code.to_i == 2174
           tws.logger.info "Please switch to the \"10-19\"-Branch of the git-repository"
         end
-				end
 		  end
 
 			duration = if start.present?
