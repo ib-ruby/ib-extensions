@@ -2,7 +2,7 @@ require_relative 'lib/ib/extensions/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "ib-extensions"
-  spec.version       = IB::Extensions::VERSION
+  spec.version       = Ib::Extensions::VERSION
   spec.authors       = ["Hartmut Bischoff"]
   spec.email         = ["topofocus@gmail.com"]
 

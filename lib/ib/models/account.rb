@@ -249,7 +249,7 @@ This has to be done manualy in the provided block
     order.what_if = true
     order.account = account
     the_local_id = order.place  contract
-    Thread.new{  sleep 1  ;  q.close }
+    Thread.new{  sleep 4  ;  q.close }
     returned_order = q.pop
     ib.unsubscribe req
     order.what_if = false # reset what_if flag

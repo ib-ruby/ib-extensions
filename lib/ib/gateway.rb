@@ -77,7 +77,7 @@ IB::Gateway.new  serial_array: true (, ...)
 
   class Gateway
 
-    include Support::Logging # provides default_logger
+    include IB::Logging # provides default_logger
     include AccountInfos     # provides Handling of Account-Data provided by the tws
     include OrderHandling
 
