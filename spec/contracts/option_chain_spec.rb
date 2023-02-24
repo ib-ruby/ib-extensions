@@ -44,13 +44,13 @@ RSpec.describe 'IB::Contract.option_chain' , #:if => :us_trading_hours,
 
 	context "verify" do
 		it "is verified" do
-			wfc.verify!
-			expect(wfc.con_id).not_to be_zero
+      w= wfc.verify.first
+			expect(w.con_id).not_to be_zero
 		end
 	end
   context 'read complete Option chain' do
 
-   subject{ IB::Symbols::Stocks.wfc.option_chain( ref_price: 30 ) }
+   subject{ IB::Symbols::Stocks.wfc.option_chain( ref_price: 45 ) }
 
     it {is_expected.to be_a Hash }
 		it "has numeric keys" do
