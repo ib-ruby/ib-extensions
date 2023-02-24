@@ -11,7 +11,7 @@ The order is identified by local_id and perm_id
 Everything is carried out in a mutex-synchonized environment
 =end
   def update_order_dependent_object order_dependent_object  # :nodoc:
-    account_data  do  | a | 
+   account_data  do  | a |
       order = if order_dependent_object.local_id.present?
                 a.locate_order( :local_id => order_dependent_object.local_id)
               else
@@ -21,7 +21,7 @@ Everything is carried out in a mutex-synchonized environment
     end
   end
   def initialize_order_handling
-    tws.subscribe( :CommissionReport, :ExecutionData, :OrderStatus, :OpenOrder, :OpenOrderEnd, :NextValidId ) do |msg| 
+    tws.subscribe( :CommissionReport, :ExecutionData, :OrderStatus, :OpenOrder, :OpenOrderEnd, :NextValidId ) do |msg|
       case msg
 
       when IB::Messages::Incoming::CommissionReport
@@ -39,7 +39,6 @@ Everything is carried out in a mutex-synchonized environment
         logger.info {  "Order State not assigned-- #{msg.order_state.to_human} ----------" } if success.nil?
 
       when IB::Messages::Incoming::OpenOrder
-        ## todo --> handling of bags --> no con_id
         account_data(msg.order.account) do | this_account |
           # first update the contracts
           # make open order equal to IB::Spreads (include negativ con_id)
@@ -63,7 +62,7 @@ Everything is carried out in a mutex-synchonized environment
           o.executions << msg.execution
           if msg.execution.cumulative_quantity.to_i == o.total_quantity.abs
             logger.info{ "#{o.account} --> #{o.contract.symbol}: Execution completed" }
-            o.order_states.first_or_create( IB::OrderState.new( perm_id: o.perm_id, 
+            o.order_states.first_or_create( IB::OrderState.new( perm_id: o.perm_id,
                                                                local_id: o.local_id,
                                                                status: 'Filled' ), :status )
             # update portfoliovalue
@@ -86,10 +85,10 @@ Everything is carried out in a mutex-synchonized environment
     end # do
   end # def subscribe
 
-  # Resets the order-array for each account first.
+  # Resets the order-array for each account.
   # Requests all open (eg. pending)  orders from the tws
   #
-  # Waits until the OpenOrderEnd-Message is recieved
+  # Waits until the OpenOrderEnd-Message is received
 
 
   def request_open_orders
@@ -99,17 +98,20 @@ Everything is carried out in a mutex-synchonized environment
     account_data {| account | account.orders = [] }
     send_message :RequestAllOpenOrders
     ## the OpenOrderEnd-message usually appears after 0.1 sec.
-    ## we wait for 0.5 sec. 
-    th =  Thread.new{   sleep 0.5 ; q.close  }
+    ## we wait for 1 sec.
+    th =  Thread.new{   sleep 1 ; q.close  }
 
     q.pop # wait for OpenOrderEnd or finishing of thread
 
     tws.unsubscribe subscription
-    if q.closed?    
-      logger.fatal{ "No Open Order Messages received!" }
-      account_data {| account | account.orders = [] } # reset order array
+    if q.closed?
+      5.times do
+      logger.fatal { "Is the API in read-only modus?  No Open Order Message received! "}
+      sleep  0.2
+      end
     else
       Thread.kill(th)
+      q.close
       account_data {| account | account.orders } # reset order array
     end
   end

@@ -131,29 +131,6 @@ require 'csv'
     #  
 		def eod start:nil, to: Date.today, duration: nil , what: :trades
 
-			tws = IB::Connection.current
-			recieved =  Queue.new
-			r = nil
-      # the hole response is transmitted at once!
-			a = tws.subscribe(IB::Messages::Incoming::HistoricalData) do |msg|
-				if msg.request_id == con_id
-					#					msg.results.each { |entry| puts "  #{entry}" }
-          self.bars = msg.results   #todo: put result in dataframe
-				end
-				recieved.push Time.now
-			end
-			b = tws.subscribe( IB::Messages::Incoming::Alert) do  |msg|
-				if [321,162,200].include? msg.code
-					tws.logger.error msg.message
-					# TWS Error 200: No security definition has been found for the request
-					# TWS Error 354: Requested market data is not subscribed.
-				  # TWS Error 162  # Historical Market Data Service error
-          recieved.close
-        elsif msg.code.to_i == 2174
-          tws.logger.info "Please switch to the \"10-19\"-Branch of the git-repository"
-        end
-		  end
-
 			duration = if start.present?
 										BuisinesDays.business_days_between(start, to).to_s + "D"
                     elsif duration.present?
@@ -175,23 +152,10 @@ require 'csv'
                   :day1
                 end
 
-			tws.send_message IB::Messages::Outgoing::RequestHistoricalData.new(
-				:request_id => con_id,
-				:contract =>  self,
-				:end_date_time => to.to_time.to_ib, #  Time.now.to_ib,
-				:duration => duration, #    ?
-				:bar_size => barsize, #  IB::BAR_SIZES.key(:hour)?
-				:what_to_show => what,
-				:use_rth => 0,
-				:format_date => 2,
-				:keep_up_todate => 0)
+      error "EOD:: Start-Date (parameter: to) must be a Date-Object" unless to.is_a? Date
 
-      recieved.pop # blocks until a message is ready on the queue or the queue is closed
 
-			tws.unsubscribe a
-			tws.unsubscribe b
-
-      block_given? ?  bars.map{|y| yield y} : bars  # return bars or result of block
+      get_bars(to.to_time.to_ib , duration, barsize, what)
 
 		end # def
 
@@ -212,12 +176,10 @@ require 'csv'
       end
     end
 
-
-    
-    def get_bars(end_date_time, duration, bar_size, what_to_show) 
+    def get_bars(end_date_time, duration, bar_size, what_to_show)
 
       tws = IB::Connection.current
-      recieved =  Queue.new
+      received =  Queue.new
       r = nil
       # the hole response is transmitted at once!
       a = tws.subscribe(IB::Messages::Incoming::HistoricalData) do |msg|
@@ -225,7 +187,7 @@ require 'csv'
           # msg.results.each { |entry| puts "  #{entry}" }
           self.bars = msg.results
         end
-        recieved.push Time.now
+        received.push Time.now
       end
       b = tws.subscribe( IB::Messages::Incoming::Alert) do  |msg|
         if [321,162,200].include? msg.code
@@ -233,7 +195,7 @@ require 'csv'
           # TWS Error 200: No security definition has been found for the request
           # TWS Error 354: Requested market data is not subscribed.
           # TWS Error 162  # Historical Market Data Service error
-          recieved.close
+          received.close
         elsif msg.code.to_i == 2174
           tws.logger.info "Please switch to the \"10-19\"-Branch of the git-repository"
         end
@@ -258,7 +220,7 @@ require 'csv'
         :format_date => 2,
         :keep_up_todate => 0)
 
-      recieved.pop # blocks until a message is ready on the queue or the queue is closed
+      received.pop # blocks until a message is ready on the queue or the queue is closed
 
       tws.unsubscribe a
       tws.unsubscribe b
