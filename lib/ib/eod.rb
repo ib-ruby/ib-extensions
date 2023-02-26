@@ -1,6 +1,8 @@
 module IB
 require 'active_support/core_ext/date/calculations'
 require 'csv'
+
+ module Eod
 	module BuisinesDays
 		#		https://stackoverflow.com/questions/4027768/calculate-number-of-business-days-between-two-days
 
@@ -51,7 +53,6 @@ require 'csv'
 			(whole_weeks * 5) + extra_days
 		end
 	end
-	class Contract
 		# Receive EOD-Data and store the data in the `:bars`-property of IB::Contract
     #
     # contract.eod duration: {String or Integer}, start: {Date}, to: {Date} what: {see below} 
@@ -77,7 +78,7 @@ require 'csv'
     # * the contract is not valid,
     # * no market data subscriptions
     # * other servers-side errors
-    # 
+    #
     # If the duration is longer then the maximum range, the response is
     # cut to the maximum allowed range
     #
@@ -128,7 +129,7 @@ require 'csv'
     #   <Bar: (28.05.21)00:00:00 wap 220.385 OHLC 226.86 228.5 210.19 225.6 trades 2585436 vol 4182406>
     #   <Bar: (30.06.21)00:00:00 wap 228.693 OHLC 226.65 233.7 221.13 230.27 trades 2557100 vol 4269840>
     #   <Bar: (20.07.21)00:00:00 wap 220.491 OHLC 230.77 232.33 209.05 218.97 trades 2105400 vol 3412088>
-    #  
+    #
 		def eod start:nil, to: Date.today, duration: nil , what: :trades
 
 			duration = if start.present?
@@ -227,8 +228,11 @@ require 'csv'
 
       block_given? ?  bars.map{|y| yield y} : bars  # return bars or result of block
 
-    end # def 
+    end # def
+  end # module eod
 
+  class Contract
+    include Eod
 	end  # class
-end # module
+end # module IB
 

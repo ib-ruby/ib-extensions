@@ -11,4 +11,5 @@ require "ib/models/bag.rb"
 require "ib/models/account.rb"
 require "ib/models/option.rb"
 require "ib/models/future.rb"
+require "ib/probability_of_expiring"
 require  'ib/gateway'
