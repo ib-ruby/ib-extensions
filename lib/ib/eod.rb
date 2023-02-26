@@ -186,7 +186,7 @@ require 'csv'
       a = tws.subscribe(IB::Messages::Incoming::HistoricalData) do |msg|
         if msg.request_id == con_id
           # msg.results.each { |entry| puts "  #{entry}" }
-          self.bars = msg.results
+          self.bars = Polars::DataFrame.new  msg.results.map( &:invariant_attributes )
         end
         received.push Time.now
       end
