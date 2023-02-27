@@ -55,7 +55,20 @@ the next six months using the Black-Scholes model:
 
 (ChatGPT)
 =end
-    def calculate_probability_of_expiring price: nil, interest: 0.03, iv: nil, strike: nil, expiry: nil
+    def calculate_probability_of_expiring price: nil,
+                                          interest: 0.03,
+                                          iv: nil,
+                                          strike: nil,
+                                          expiry: nil,
+                                          ref_date: Date.today
+
+      if iv.nil?  && self.respond_to?( :greek )
+        IB::Connection.current.logger.info "Probability_of_expiring: using current IV and Underlying-Price for calculation"
+          request_greeks if greek.nil?
+          iv = greek.implied_volatility
+          price = greek.under_price if price.nil?
+      end
+      error "ProbabilityOfExpiringCone needs iv as input" if iv.nil? || iv.zero?
 
       if price.nil?
         price =  if self.strike.to_i.zero?
@@ -66,11 +79,6 @@ the next six months using the Black-Scholes model:
       end
       error "ProbabilityOfExpiringCone needs price as input" if price.to_i.zero?
 
-      if iv.nil?  && self.respond_to?( :greeks )
-          request_greeks if greek.nil?
-          iv = greek.implied_volatility
-      end
-      error "ProbabilityOfExpiringCone needs iv as input" if iv.nil? || iv.zero?
 
       strike ||= self.strike
       error "ProbabilityOfExpiringCone needs strike as input" if strike.to_i.zero?
@@ -82,7 +90,7 @@ the next six months using the Black-Scholes model:
           expiry = last_trading_day
         end
       end
-      time_to_expiry = ( Date.parse( expiry.to_s ) - Date.today ).to_i
+      time_to_expiry = ( Date.parse( expiry.to_s ) - ref_date ).to_i
 
       # # Calculate d1 and d2
       d1 = (Math.log(price/strike.to_f) + (interest + 0.5*iv**2)*time_to_expiry) / (iv * Math.sqrt(time_to_expiry))
