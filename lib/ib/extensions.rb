@@ -1,4 +1,6 @@
 ## require any file, except gateway and related
+require "distribution"
+require "polars"
 require "ib/extensions/version"
 require "ib/verify"
 require "ib/eod"
