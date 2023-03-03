@@ -1,3 +1,5 @@
+require "distribution"
+require "polars"
 require  'ib-api'
 require  'ib/verify'
 require  'ib/spread-prototypes'

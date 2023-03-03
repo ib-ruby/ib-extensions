@@ -45,6 +45,8 @@ puts IB::Symbols.Index.estx.eod( duration: '10 d' )
 ```
 Fetch historical data with just one line of code  ([documentation](https://ib-ruby.github.io/ib-doc/Historical_data.html) )
 
+**NEW :: Contract.eod returns a PolarsDataframe **
+
 ## Order Prototypes
 ```
 require 'ib-api'
