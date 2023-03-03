@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "prime"
   spec.add_dependency "distribution"
   spec.add_dependency "polars-df" , "~> 0.3.1"
-  spec.add_dependency "ib-api", "~> 972.4"
+  spec.add_dependency "ib-api", "~> 972.5.2"
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency 'rspec-collection_matchers'
