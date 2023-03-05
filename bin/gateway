@@ -12,10 +12,6 @@ LogLevel = Logger::DEBUG  ##INFO # DEBUG # ERROR
 #require File.expand_path(File.dirname(__FILE__) + "/../config/boot")
 
 require 'ib-gateway'
-require 'ib/verify'
-require 'ib/market-price'
-require 'ib/option-chain'
-require 'ib/eod'
 require 'ib/symbols'
 class Array
   # enables calling members of an array. which are hashes  by it name
@@ -69,7 +65,7 @@ read_yml = -> (key) do
   ## and prior to the connection-process
   ## Here we just subscribe to some events  
 	begin
-		G =  Gateway.new get_account_data: true, serial_array: true,
+    G =  Gateway.new get_account_data: true, serial_array: true, host: '10.247.8.109',
 			client_id: client_id, port: port , 
 			watchlists: [:Spreads, :Stillhalter, :BuyAndHold] do |c|
         c.tws.subscribe( :Alert, :ContractDataEnd, :ManagedAccounts, :OrderStatus ) {| m| c.logger.info { m.to_human } }

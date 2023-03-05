@@ -1,9 +1,8 @@
-#require 'ib/models/spread'
-require 'ib/verify'
-# These modules are used to facilitate referencing of most common Spreads 
+require 'ib/extensions/verify'
+# These modules are used to facilitate  most common Spreads
 
 # Spreads are created in  two ways:
-#	
+#
 #	(1) IB::Spread::{prototype}.build  from: {underlying},
 #																		 trading_class: (optional)
 #																		 {other specific attributes}
@@ -15,10 +14,10 @@ require 'ib/verify'
 #
 module IB
 	module SpreadPrototype
-	
+
 
 		def build from: , **fields
-			
+
 		end
 
 

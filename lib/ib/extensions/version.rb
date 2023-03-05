@@ -1,6 +1,6 @@
 module IB
   module Extensions
-    VERSION = "1.3"
+    VERSION = "2.0"
   end
 end
 
@@ -13,4 +13,8 @@ Changelog V. 1.2 -> 1.3
 * IB::Contract.eod returns a Polars DataFrame
 * improved IB::Option.request_greeks
 * improved IB::Contract.verify
+
+Changelog V. 1.2 -> 1.3
+
+* Reorganizing file/module structure to fit zeitwerk preconditions
 

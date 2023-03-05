@@ -25,21 +25,21 @@ require 'ib/extensions'
 ## Verify
 ```
 require 'ib-api'
-require 'ib/verify'
+require 'ib/extensions/verify'
 ```
 Verifies a given contract, for details refer to the [documentation](https://ib-ruby.github.io/ib-doc/Verify_contracts.html )
 
 ## Market Price
 ```
 require 'ib-api'
-require 'ib/market-price'
+require 'ib/extensions/market-price'
 ```
 Returns the most recent market-price of a given contract  ( [documentation](https://ib-ruby.github.io/ib-doc/market_price.html) )
 
 ## Historical Data (EOD)
 ```
 require 'ib-api'
-require 'ib/eod'
+require 'ib/extensions/eod'
 
 puts IB::Symbols.Index.estx.eod( duration: '10 d' )
 ```
@@ -90,7 +90,7 @@ puts s.as_table
 │ Option │ ESTX50 │  266033423 │   DTB    │ 20211217 │     10     │     OESX      │ call  │ 4200.0 │   EUR    │
 └────────┴────────┴────────────┴──────────┴──────────┴────────────┴───────────────┴───────┴────────┴──────────┘
  ```
-and use the speads like any other contract. ([documentation](https://ib-ruby.github.io/ib-doc/spreads.html))
+and use the spreads like any other contract. ([documentation](https://ib-ruby.github.io/ib-doc/spreads.html))
 
 ## Gateway 
 ```
@@ -115,7 +115,7 @@ puts client.first.portfolio_values.as_table
 ```
 Details in the [documentation](https://ib-ruby.github.io/ib-doc/gateway.html)
 
-Generally `puts IB::Model.as_table` provides a modern and convient output for the console and notebooks.
+Generally `puts IB::Model.as_table` provides a modern and convenient output for the console and notebooks.
 
 ```ruby
 g.update_orders

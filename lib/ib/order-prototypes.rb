@@ -1,4 +1,4 @@
-# These modules are used to facilitate referencing of most common Ordertypes
+# These modules are used to facilitate most common Ordertypes
 
 module IB
 	module OrderPrototype

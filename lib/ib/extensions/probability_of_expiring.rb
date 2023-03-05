@@ -1,4 +1,5 @@
 module IB
+ module  Extensions
   module ProbabilityOfExpiring
 
     # Use  by calling
@@ -101,9 +102,10 @@ the next six months using the Black-Scholes model:
 
     end
   end
+ end
 
   class Contract
-    include ProbabilityOfExpiring
+    include Extensions::ProbabilityOfExpiring
   end
 
 end

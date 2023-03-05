@@ -1,7 +1,7 @@
 module IB
 require 'active_support/core_ext/date/calculations'
 require 'csv'
-
+module Extensions
  module Eod
 	module BuisinesDays
 	#	https://stackoverflow.com/questions/4027768/calculate-number-of-business-days-between-two-days
@@ -269,9 +269,9 @@ require 'csv'
 
     end # def
   end # module eod
-
+end
   class Contract
-    include Eod
+    include Extensions::Eod
 	end  # class
 end # module IB
 
