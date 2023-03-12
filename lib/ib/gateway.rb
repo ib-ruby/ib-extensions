@@ -1,6 +1,6 @@
 #
-require 'ib/gateway/account-infos'
-require 'ib/gateway/order-handling'
+require 'ib/extensions/account-infos'
+require 'ib/extensions/order-handling'
 require_relative 'alerts/gateway-alerts'
 require_relative 'alerts/order-alerts'
 require 'active_support/core_ext/module/attribute_accessors'   # provides m_accessor
@@ -52,7 +52,7 @@ The Default Skeleton can easily be substituted by customized actions
 The IB::Gateway can be used in three modes
 (1) IB::Gateway.new( connect:true, --other arguments-- ) do | gateway |
 	** subscribe to Messages and define the response  **
-	# This block is executed before a connect-attempt is made 
+	# This block is executed before a connect-attempt is made
 		end
 (2) gw = IB:Gateway.new
 		** subscribe to Messages **
@@ -60,7 +60,7 @@ The IB::Gateway can be used in three modes
 (3) IB::Gateway.new connect:true, host: 'localhost' ....
 
 Independently IB::Alert.alert_#{nnn} should be defined for a proper response to warnings, error-
-and system-messages. 
+and system-messages.
 
 
 The Connection to the TWS is realized throught IB::Connection. Additional to __IB::Connection.current__
@@ -78,8 +78,8 @@ IB::Gateway.new  serial_array: true (, ...)
   class Gateway
 
     include Support::Logging # provides default_logger
-    include AccountInfos     # provides Handling of Account-Data provided by the tws
-    include OrderHandling
+    include Extensions::AccountInfos     # provides Handling of Account-Data provided by the tws
+    include Extensions::OrderHandling
 
     # include GWSupport   # introduces update_or_create, first_or_create and intercept to the Array-Class
 
@@ -99,7 +99,7 @@ IB::Gateway.new  serial_array: true (, ...)
 			connect: true,
 			get_account_data: false,
 			serial_array: false,
-      logger: nil, 
+      logger: nil,
 			watchlists: [] ,  # array of watchlists (IB::Symbols::{watchlist}) containing descriptions for complex positions
 			**other_agruments_which_are_ignored,
 			&b
@@ -157,7 +157,7 @@ IB::Gateway.new  serial_array: true (, ...)
 			@watchlists
 		end
     def add_watchlist watchlist
-     new_watchlist = IB::Symbols.allocate_collection( watchlist ) 
+     new_watchlist = IB::Symbols.allocate_collection( watchlist )
      @watchlists <<  new_watchlist unless @watchlists.include?( new_watchlist )
     end
 
@@ -430,10 +430,10 @@ Its always active.
           count+=1
           break if result || count > 10
 				rescue IOError, Errno::ECONNREFUSED   # connection lost
-					count +=1 
+					count +=1
           retry
 				rescue IB::Error # not connected
-					reconnect 
+					reconnect
 					count = 0
 					retry
 				end

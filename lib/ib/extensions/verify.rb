@@ -62,7 +62,7 @@ module IB
              future: { currency: 'USD', exchange: nil, expiry: nil,  symbol: nil },
              forex:  { currency: 'USD', exchange: 'IDEALPRO', symbol: nil }
         }
-        sec_type.present? ?	v[sec_type] : { con_id: nil, exchange: 'SMART' } # enables to use only con_id for verifying
+        sec_type.present? ?	v[sec_type] : { con_id: nil, currency: 'USD' } # enables to use only con_id for verifying
         # if the contract allows SMART routing
       end
 
@@ -100,7 +100,7 @@ module IB
         queue = Queue.new
         message_id = nil
 
-        # a tws-request is suppressed for bags and if the contract_detail-record is present
+        # a tws-request is suppressed for bags or if the contract_detail-record is present
         tws_request_not_necessary = bag? || contract_detail.is_a?( IB::ContractDetail )
 
         if tws_request_not_necessary
@@ -123,7 +123,7 @@ module IB
                     else
                       msg.contract
                     end
-                queue.push c unless c.nil?
+                queue.push c unless c.nil? || queue.closed?
               end
             when IB::Messages::Incoming::ContractDataEnd
               queue.close if  msg.request_id.to_i == message_id
@@ -179,8 +179,8 @@ module IB
           #				end
           #			Contract.build  item_attributehash[necessary_items].merge(:sec_type=> sec_type)  # return this
           IB::Contract.build  self.invariant_attributes # return this
-        else   # its always possible, to retrieve a Contract if con_id and exchange  or are present
-          IB::Contract.new  con_id: con_id , :exchange => exchange.presence || item_attributehash[necessary_attributes][:exchange].presence || 'SMART'				# return this
+        else   # its always possible, to retrieve a Contract if con_id and currency  or are present
+          IB::Contract.new  con_id: con_id , :currency => currency || 'USD'
         end  # if
       end # def
     end   # module verify

@@ -4,7 +4,7 @@
 	  Clients are just tradeable `IB::Accounts`.  
  
   * rename ' for_active_accounts' to `account_data`
-		Account-data provides a thead-safe access to contrats, portfolio- and account-values auf a given account.
+		Account-data provides a thread-safe access to contracts, portfolio- and account-values of a given account.
 
   * rename `simple_account_data_scan`  to `account_Data_scan`
 
@@ -45,7 +45,7 @@
      If min_tick < 0.01, the real tick-increments differ from the min_tick_value
     
      For J36 (jardines) min tick is 0.001, but the minimal increment is 0.005
-     For Tui1 its the same, min_tick is 0.00001 , minimal increment ist 0.00005
+     For Tui1 its the same, min_tick is 0.00001 , minimal increment is 0.00005
     
      Thus, for min-tick smaller then 0.01, the value is rounded to the next higher digit.
      
@@ -89,3 +89,6 @@
 
 * IB::Gateway.current.add_watchlist( a symbol ) -- Watchlists can added after initialisation
 
+* New directory structure:  IB::Extensions::Modulename
+* Extensions are modules which are included in IB::Contracts
+* IB::Option.underlying fetches the contract as specified in contract-details of  IB::Option

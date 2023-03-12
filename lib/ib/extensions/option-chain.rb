@@ -2,7 +2,7 @@ module IB
   module Extensions
     module OptionChain
 
-      # returns the Option Chain  (monthly options, expiry: third friday) 
+      # returns the Option Chain  (monthly options, expiry: third friday)
       # of the contract (if available)
       #
       #
