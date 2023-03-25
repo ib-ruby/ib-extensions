@@ -55,7 +55,7 @@ require 'csv'
 	end
     # Receive EOD-Data and store the data in the `:bars`-property of IB::Contract
     #
-    # contract.eod duration: {String or Integer}, start: {Date}, to: {Date} what: {see below} 
+    # contract.eod duration: {String or Integer}, start: {Date}, to: {Date}, what: {see below},  polars: {true|false}
     #
     #
     #
@@ -75,8 +75,8 @@ require 'csv'
     #
     # Polars DataFrames
     # -----------------
-    # The response is stored as PolarsDataframe
-    # for further processing: https://github.com/ankane/polars-ruby
+    # If »polars: true« is specified the response is stored as PolarsDataframe.
+    # For further processing: https://github.com/ankane/polars-ruby
     #                         https://pola-rs.github.io/polars/py-polars/html/index.html
     #
     # Error-handling
@@ -102,7 +102,7 @@ require 'csv'
     # Examples
     # --------
     #
-    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2019,10,9), duration: 3)
+    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2019,10,9), duration: 3, polars: true)
         # shape: (3, 8)
         # ┌────────────┬────────┬────────┬────────┬────────┬────────┬─────────┬────────┐
         # │ time       ┆ open   ┆ high   ┆ low    ┆ close  ┆ volume ┆ wap     ┆ trades │
@@ -114,7 +114,7 @@ require 'csv'
         # │ 2019-10-10 ┆ 146.9  ┆ 148.74 ┆ 146.87 ┆ 148.24 ┆ 134549 ┆ 147.792 ┆ 71084  │
         # └────────────┴────────┴────────┴────────┴────────┴────────┴─────────┴────────┘
         #
-    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2021,10,9), duration: '3W')
+    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2021,10,9), duration: '3W', polars: true)
         # shape: (3, 8)
         # ┌────────────┬────────┬────────┬────────┬────────┬─────────┬─────────┬────────┐
         # │ time       ┆ open   ┆ high   ┆ low    ┆ close  ┆ volume  ┆ wap     ┆ trades │
@@ -126,7 +126,7 @@ require 'csv'
         # │ 2021-10-15 ┆ 220.69 ┆ 228.41 ┆ 218.94 ┆ 225.05 ┆ 768065  ┆ 223.626 ┆ 437817 │
         # └────────────┴────────┴────────┴────────┴────────┴─────────┴─────────┴────────┘
         #
-    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2022,10,1), duration: '3M')
+    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2022,10,1), duration: '3M', polars: true)
         # shape: (3, 8)
         # ┌────────────┬────────┬────────┬────────┬────────┬─────────┬─────────┬─────────┐
         # │ time       ┆ open   ┆ high   ┆ low    ┆ close  ┆ volume  ┆ wap     ┆ trades  │
@@ -138,7 +138,7 @@ require 'csv'
         # │ 2022-11-30 ┆ 184.51 ┆ 189.56 ┆ 174.11 ┆ 188.19 ┆ 3793861 ┆ 182.594 ┆ 1945674 │
         # └────────────┴────────┴────────┴────────┴────────┴─────────┴─────────┴─────────┘
         #
-    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2020,1,1), duration: '3M', what: :option_implied_vol
+    # puts  Stock.new( symbol: :iwm).eod( start: Date.new(2020,1,1), duration: '3M', what: :option_implied_vol, polars: true
         # atility )
         # shape: (3, 8)
         # ┌────────────┬──────────┬──────────┬──────────┬──────────┬────────┬──────────┬────────┐
@@ -151,7 +151,7 @@ require 'csv'
         # │ 2020-02-28 ┆ 0.185732 ┆ 0.436549 ┆ 0.134933 ┆ 0.39845  ┆ 0      ┆ 0.435866 ┆ 0      │
         # └────────────┴──────────┴──────────┴──────────┴──────────┴────────┴──────────┴────────┘
         #
-        def eod start: nil, to: nil, duration: nil , what: :trades
+        def eod start: nil, to: nil, duration: nil , what: :trades, polars: false
 
          # error "EOD:: Start-Date (parameter: to) must be a Date-Object" unless to.is_a? Date
           normalize_duration = ->(d) do
@@ -166,7 +166,7 @@ require 'csv'
             d = normalize_duration.call(duration)
             case  d[-1]
             when "D"
-              start + d.to_i - 1 
+              start + d.to_i - 1
             when 'W'
               Date.commercial( start.year, start.cweek + d.to_i - 1, 1)
             when 'M'
@@ -175,15 +175,15 @@ require 'csv'
           end
 
           if to.nil?
-          #  case   eod start= Date.new ...  
+          #  case   eod start= Date.new ...
             to =   if start.present? && duration.nil?
-          # case    eod start= Date.new 
+          # case    eod start= Date.new
                      duration = BuisinesDays.business_days_between(start, to).to_s + "D"
                      Date.today #  assign to var: to
                    elsif start.present? && duration.present?
           # case    eod start= Date.new , duration: 'nN'
                      get_end_date.call  # assign to var: to
-                   elsif duration.present?    
+                   elsif duration.present?
           # case    start is not present, we are collecting until the present day
                       Date.today         # assign to var: to
                    else
@@ -202,7 +202,7 @@ require 'csv'
                     end
 
 
-         get_bars(to.to_time.to_ib , normalize_duration[duration], barsize, what)
+         get_bars(to.to_time.to_ib , normalize_duration[duration], barsize, what, polars)
 
         end # def
 
@@ -223,7 +223,7 @@ require 'csv'
       end
     end
 
-    def get_bars(end_date_time, duration, bar_size, what_to_show)
+    def get_bars(end_date_time, duration, bar_size, what_to_show, polars)
 
       tws = IB::Connection.current
       received =  Queue.new
@@ -231,8 +231,12 @@ require 'csv'
       # the hole response is transmitted at once!
       a = tws.subscribe(IB::Messages::Incoming::HistoricalData) do |msg|
         if msg.request_id == con_id
-          # msg.results.each { |entry| puts "  #{entry}" }
-          self.bars = Polars::DataFrame.new  msg.results.map( &:invariant_attributes )
+          self.bars = if polars
+                        # msg.results.each { |entry| puts "  #{entry}" }
+                        Polars::DataFrame.new  msg.results.map( &:invariant_attributes )
+                      else
+                        msg.results
+                      end
         end
         received.push Time.now
       end
