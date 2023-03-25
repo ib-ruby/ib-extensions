@@ -1,6 +1,6 @@
 module IB
   module Extensions
-    VERSION = "1.3"
+    VERSION = "1.3.1"
   end
 end
 
@@ -13,4 +13,6 @@ Changelog V. 1.2 -> 1.3
 * IB::Contract.eod returns a Polars DataFrame
 * improved IB::Option.request_greeks
 * improved IB::Contract.verify
+
+1.3.1:  Contract.eod:  Parameter  polars: true|false 
 
