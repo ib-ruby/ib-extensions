@@ -155,6 +155,7 @@ require 'csv'
 
          # error "EOD:: Start-Date (parameter: to) must be a Date-Object" unless to.is_a? Date
           normalize_duration = ->(d) do
+            error "incompatible duration: #{d.class}" unless d.is_a?(Integer) || d.is_a?(String)
             if d.is_a?(Integer) || !["D","M","W","Y"].include?( d[-1].upcase )
               d.to_i.to_s + "D"
             else
@@ -178,7 +179,7 @@ require 'csv'
           #  case   eod start= Date.new ...
             to =   if start.present? && duration.nil?
           # case    eod start= Date.new
-                     duration = BuisinesDays.business_days_between(start, to).to_s + "D"
+                     duration = BuisinesDays.business_days_between(start, Date.today).to_s + "D"
                      Date.today #  assign to var: to
                    elsif start.present? && duration.present?
           # case    eod start= Date.new , duration: 'nN'
