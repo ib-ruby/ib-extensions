@@ -1,5 +1,7 @@
 # IB/Extensions
 
+**included as plugins in the actual version of ip-api**
+
 ---
 
 __Documentation: [https://ib-ruby.github.io/ib-doc/](https://ib-ruby.github.io/ib-doc/)__  
